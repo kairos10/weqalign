@@ -24,8 +24,9 @@ func ExamplePlateGetWcsInfo() {
 	img := am.ImageResource{FilePath: "testres/img1.jpg"}
 	solver(&img)
 	am.PlateGetWcsInfo(&img)
-	fmt.Println(img.NegParity)
-	// Output: true
+	fmt.Printf("parity[%v] RA[%.8f] DEC[%.8f]\n", img.NegParity, img.RACenter, img.DECCenter)
+	// Output: 
+	// parity[true] RA[153.09812355] DEC[83.58660028]
 }
 
 func ExamplePlateRD2XY() {

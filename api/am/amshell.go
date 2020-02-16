@@ -48,6 +48,7 @@ type ImageResource struct {
 	isSolved    bool   // the file has a solution
 
 	FieldW, FieldH float64 // field width, height
+	RACenter, DECCenter float64 // image center [RA;DEC]
 	PixScale       float64 // pixel scale
 	NegParity       bool   // the image has negative parity
 
@@ -168,6 +169,16 @@ func PlateGetWcsInfo(res *ImageResource) {
 					res.FieldH = fieldH
 				}
 				//fmt.Println("fieldh: ", int(fieldH))
+			case "ra_center":
+				raCenter, err := strconv.ParseFloat(string(m[1]), 64)
+				if err == nil {
+					res.RACenter = raCenter
+				}
+			case "dec_center":
+				decCenter, err := strconv.ParseFloat(string(m[1]), 64)
+				if err == nil {
+					res.DECCenter = decCenter
+				}
 			case "parity":
 				parity, err := strconv.ParseFloat(string(m[1]), 64)
 				if err == nil {
