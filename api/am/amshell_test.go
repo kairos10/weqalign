@@ -6,16 +6,18 @@ import (
 )
 
 func ExampleGetPlateSolver() {
-	am.AmShellCommands["solver"] = "./testres/solve.sh"
-
 	solver := am.GetPlateSolver()
-	
+
+	ok := solver(&am.ImageResource{FilePath: "testres/img2.jpg"})
+	fmt.Println(ok)
+
+	am.AmShellCommands["solver"] = "./testres/solve.sh"
 	img := am.ImageResource{FilePath: "testres/img1.jpg"}
 	am.LoggerFunc = func(s string) { fmt.Println(s) }
 	solver(&img)
 	am.LoggerFunc = nil
-	solver(&am.ImageResource{FilePath: "testres/img2.jpg"})
 	// Output:
+	// true
 	// SOLVED: testres/img1
 }
 

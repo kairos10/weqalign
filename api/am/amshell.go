@@ -17,7 +17,7 @@ var AmShellCommands map[string]string
 
 var LoggerFunc func(string)
 
-func log(s string) {
+func logger(s string) {
 	if LoggerFunc != nil {
 		LoggerFunc(s)
 	}
@@ -27,10 +27,17 @@ func init() {
 	if AmShellCommands == nil {
 		AmShellCommands = make(map[string]string)
 	}
-	AmShellCommands["solver"] = "./solve.sh"
+	AmShellCommands["solver"] = "solve-field"
 	AmShellCommands["wcsinfo"] = "wcsinfo"
 	AmShellCommands["wcs-rd2xy"] = "wcs-rd2xy"
 	AmShellCommands["tablist"] = "tablist"
+
+	for _, p := range AmShellCommands {
+		_, err := exec.LookPath(p)
+		if err != nil {
+			fmt.Printf("Checking path: [%s] NOT FOUND!\n\n", p)
+		}
+	}
 }
 
 const (
@@ -53,6 +60,11 @@ type ImageResource struct {
 	NegParity       bool   // the image has negative parity
 
 	Stars       []XYStarPos // position of the stars identifies within the image
+}
+func (r ImageResource) String() string {
+	status := "na"
+	if r.isSolved { status="solved" } else if r.isProcessed { status="failed" } else if r.isInProcess { status="running" }
+	return fmt.Sprintf("%s [%s]", r.FilePath, status)
 }
 
 func GetPlateSolver() func(*ImageResource) bool {
@@ -83,7 +95,7 @@ func GetPlateSolver() func(*ImageResource) bool {
 			// file is already solved
 			r.isProcessed = true
 			r.isSolved = true
-			log("SOLVED: " + fileBase)
+			logger("SOLVED: " + fileBase)
 			return true
 		} else {
 			r.isInProcess = true
@@ -99,15 +111,15 @@ func GetPlateSolver() func(*ImageResource) bool {
 		procPool.Unlock()
 
 		if ok {
-			log(fmt.Sprintf("Solving [%v]\n", fileBase))
+			logger(fmt.Sprintf("Solving [%v]\n", fileBase))
 			cmd := exec.Command(AmShellCommands["solver"], r.FilePath, "-L", fmt.Sprintf("%v", AmMinField), "-H", fmt.Sprintf("%v", AmMaxField))
-			log("SOLVER+")
+			logger("SOLVER+")
 			startTime := time.Now()
 			err := cmd.Run()
 			if err != nil {
-				log(fmt.Sprintln("CMD Error: ", err))
+				logger(fmt.Sprintln("CMD Error: ", err))
 			}
-			log(fmt.Sprintln("SOLVER-[", time.Now().Sub(startTime), "]"))
+			logger(fmt.Sprintln("SOLVER-[", time.Now().Sub(startTime), "]"))
 
 			procPool.Lock()
 			procPool.availableProcesses++
@@ -122,9 +134,9 @@ func GetPlateSolver() func(*ImageResource) bool {
 				max := int(math.Max(r.FieldW, r.FieldH)) + 1
 				if AmMinField == DEFAULT_SOLVER_MIN_FIELD && AmMaxField == DEFAULT_SOLVER_MAX_FIELD && min >= AmMinField && max <= AmMaxField {
 					AmMinField, AmMaxField = min, max
-					log(fmt.Sprintln("Changing min/max solver field: [", AmMinField, ", ", AmMaxField, "]"))
+					logger(fmt.Sprintln("Changing min/max solver field: [", AmMinField, ", ", AmMaxField, "]"))
 				}
-				log("SOLVED!: " + fileBase)
+				logger("SOLVED!: " + fileBase)
 			}
 		}
 
