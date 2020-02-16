@@ -1,0 +1,31 @@
++ solve-field --overwrite --downsample 1 --depth 30 --cpulimit 90 --resort --no-remove-lines --uniformize 0 --objs 50 --crpix-center --no-plots --new-fits none --rdls none --corr none --match none --index-xyls none --dir . img1.jpg
+Reading input file 1 of 1: "img1.jpg"...
+jpegtopnm: WRITING PPM FILE
+Read file stdin: 1296 x 972 pixels x 1 color(s); maxval 255
+Using 8-bit output
+Extracting sources...
+simplexy: found 90 sources.
+Reading sort column "FLUX"
+Sorting sort column
+mmapping input file
+Copying table header.
+Writing row 0
+Done
+Solving...
+Reading file "./img1.axy"...
+  log-odds ratio 168.896 (2.24085e+73), 31 match, 0 conflict, 10 distractors, 43 index.
+  RA,Dec = (153.206,83.5964), pixel scale 39.5067 arcsec/pix.
+  Hit/miss:   Hit/miss: +++++++-++++++++-+++++++++-+-+-+-+-+-+--+(best)------+++
+Field 1: solved with index index-4115.fits.
+Field 1 solved: writing to file ./img1.solved to indicate this.
+Field: img1.jpg
+Field center: (RA,Dec) = (153.098124, 83.586600) deg.
+Field center: (RA H:M:S, Dec D:M:S) = (10:12:23.550, +83:35:11.761).
+Field size: 14.1884 x 10.6715 degrees
+Field rotation angle: up is 120.155 degrees E of N
+Field parity: neg
+
+
+real	0m7.581s
+user	0m7.537s
+sys	0m0.343s
