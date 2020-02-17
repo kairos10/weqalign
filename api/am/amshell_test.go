@@ -8,11 +8,11 @@ import (
 func ExampleGetPlateSolver() {
 	solver := am.GetPlateSolver()
 
-	ok := solver(&am.ImageResource{FilePath: "testres/img2.jpg"})
+	ok := solver(&am.ImagePlate{FilePath: "testres/img2.jpg"})
 	fmt.Println(ok)
 
 	am.AmShellCommands["solver"] = "./testres/solve.sh"
-	img := am.ImageResource{FilePath: "testres/img1.jpg"}
+	img := am.ImagePlate{FilePath: "testres/img1.jpg"}
 	am.LoggerFunc = func(s string) { fmt.Println(s) }
 	solver(&img)
 	am.LoggerFunc = nil
@@ -23,7 +23,7 @@ func ExampleGetPlateSolver() {
 
 func ExamplePlateGetWcsInfo() {
 	solver := am.GetPlateSolver()
-	img := am.ImageResource{FilePath: "testres/img1.jpg"}
+	img := am.ImagePlate{FilePath: "testres/img1.jpg"}
 	solver(&img)
 	am.PlateGetWcsInfo(&img)
 	fmt.Printf("parity[%v] RA[%.8f] DEC[%.8f]\n", img.NegParity, img.RACenter, img.DECCenter)
@@ -33,7 +33,7 @@ func ExamplePlateGetWcsInfo() {
 
 func ExamplePlateRD2XY() {
 	solver := am.GetPlateSolver()
-	img := am.ImageResource{FilePath: "testres/img1.jpg"}
+	img := am.ImagePlate{FilePath: "testres/img1.jpg"}
 	solver(&img)
 	x, y := am.PlateRD2XY(&img, 0, 90) // get position for NCP[ra=0; dec=90°]
 	fmt.Printf("x[%.1f] y[%.1f]", x, y)
@@ -42,7 +42,7 @@ func ExamplePlateRD2XY() {
 
 func ExamplePlateGetStars() {
 	solver := am.GetPlateSolver()
-	img := am.ImageResource{FilePath: "testres/img1.jpg"}
+	img := am.ImagePlate{FilePath: "testres/img1.jpg"}
 	solver(&img)
 	stars := am.PlateGetStars(&img)
 	fmt.Println(len(stars), "stars")

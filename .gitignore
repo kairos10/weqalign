@@ -1,2 +1,5 @@
 .*.swp
 *.x
+**/testres/img2*
+!**/testres/img.jpg
+test/

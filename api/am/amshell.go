@@ -48,7 +48,7 @@ const (
 
 var AmMinField, AmMaxField int // plate solver limits [min° - max°]; if not initialized, the values are derived from the first solved image
 
-type ImageResource struct {
+type ImagePlate struct {
 	FilePath    string // full path to the image file
 	isProcessed bool   // file is already processed
 	isInProcess bool   // the file is being worked on
@@ -61,13 +61,18 @@ type ImageResource struct {
 
 	Stars       []XYStarPos // position of the stars identifies within the image
 }
-func (r ImageResource) String() string {
+func (r ImagePlate) String() string {
 	status := "na"
 	if r.isSolved { status="solved" } else if r.isProcessed { status="failed" } else if r.isInProcess { status="running" }
 	return fmt.Sprintf("%s [%s]", r.FilePath, status)
 }
 
-func GetPlateSolver() func(*ImageResource) bool {
+// transform remove extension from a fully qualified file: "/a/b/file.ext" -> "/a/b/file"
+func fileBase(filePath string) string {
+	return filePath[0 : len(filePath)-len(filepath.Ext(filePath))]
+}
+
+func GetPlateSolver() func(*ImagePlate) bool {
 	procPool := struct {
 		sync.Mutex
 		availableProcesses int
@@ -80,9 +85,9 @@ func GetPlateSolver() func(*ImageResource) bool {
 		AmMaxField = DEFAULT_SOLVER_MAX_FIELD
 	}
 
-	return func(r *ImageResource) bool {
+	return func(r *ImagePlate) bool {
 		var ok bool
-		fileBase := r.FilePath[0 : len(r.FilePath)-len(filepath.Ext(r.FilePath))]
+		fileBase := fileBase(r.FilePath)
 
 		if r.isProcessed {
 			return true
@@ -145,11 +150,11 @@ func GetPlateSolver() func(*ImageResource) bool {
 	}
 }
 
-func PlateGetWcsInfo(res *ImageResource) {
+func PlateGetWcsInfo(res *ImagePlate) {
 	if res.PixScale != 0 || !res.isSolved {
 		return
 	}
-	fileBase := res.FilePath[0 : len(res.FilePath)-len(filepath.Ext(res.FilePath))]
+	fileBase := fileBase(res.FilePath)
 	cmd := exec.Command(AmShellCommands["wcsinfo"], fileBase+".wcs")
 	stdout, _ := cmd.StdoutPipe()
 	scanner := bufio.NewScanner(stdout)
@@ -208,8 +213,8 @@ func PlateGetWcsInfo(res *ImageResource) {
 // 	wcs-rd2xy -w img1.wcs -r 0 -d 90
 //
 //	RA,Dec (0.0000000000, 90.0000000000) -> pixel (141.8137606751, 191.8948501378)
-func PlateRD2XY(res *ImageResource, ra int, dec int) (x float64, y float64) {
-	fileBase := res.FilePath[0 : len(res.FilePath)-len(filepath.Ext(res.FilePath))]
+func PlateRD2XY(res *ImagePlate, ra int, dec int) (x float64, y float64) {
+	fileBase := fileBase(res.FilePath)
 	r := fmt.Sprintf("%v", ra)
 	d := fmt.Sprintf("%v", dec)
 	cmd := exec.Command(AmShellCommands["wcs-rd2xy"], "-w", fileBase+".wcs", "-r", r, "-d", d)
@@ -249,14 +254,14 @@ const MAX_NUM_STARS = 15
 //          X              Y           FLUX     BACKGROUND
 // 1        147.220        124.876        249.000        3.00000
 // 2        878.206        480.664        101.148        3.85217
-func PlateGetStars(res *ImageResource) []XYStarPos {
+func PlateGetStars(res *ImagePlate) []XYStarPos {
 	if res.Stars != nil {
 		return res.Stars
 	}
 	stars := make([]XYStarPos, MAX_NUM_STARS) // return up to MAX_NUM_STARS star positions
 	numStars := 0
 
-	fileBase := res.FilePath[0 : len(res.FilePath)-len(filepath.Ext(res.FilePath))]
+	fileBase := fileBase(res.FilePath)
 	cmd := exec.Command(AmShellCommands["tablist"], fileBase+".axy")
 	stdout, _ := cmd.StdoutPipe()
 	scanner := bufio.NewScanner(stdout)
