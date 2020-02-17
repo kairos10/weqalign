@@ -3,3 +3,8 @@
 **/testres/img2*
 !**/testres/img.jpg
 test/
+
+main
+go.sum
+temp_web.go
+weqalign

@@ -66,7 +66,13 @@ func (r ImagePlate) String() string {
 	if r.isSolved { status="solved" } else if r.isProcessed { status="failed" } else if r.isInProcess { status="running" }
 	return fmt.Sprintf("%s [%s]", r.FilePath, status)
 }
+
 type ImagePlateStatus uint8
+func (r ImagePlateStatus) String() string {
+	ret := "UNKNOWN"
+	if r==ImagePlateStatusSOLVED { ret="SOLVED" } else if r==ImagePlateStatusRUNNING { ret="RUNNING" } else if r==ImagePlateStatusFAILED { ret="FAILED" }
+	return ret
+}
 const (
 	ImagePlateStatusSOLVED ImagePlateStatus = iota
 	ImagePlateStatusRUNNING
