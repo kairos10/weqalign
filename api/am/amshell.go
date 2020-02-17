@@ -66,6 +66,18 @@ func (r ImagePlate) String() string {
 	if r.isSolved { status="solved" } else if r.isProcessed { status="failed" } else if r.isInProcess { status="running" }
 	return fmt.Sprintf("%s [%s]", r.FilePath, status)
 }
+type ImagePlateStatus uint8
+const (
+	ImagePlateStatusSOLVED ImagePlateStatus = iota
+	ImagePlateStatusRUNNING
+	ImagePlateStatusFAILED
+	ImagePlateStatusUNKNOWN
+)
+func (r ImagePlate) GetStatus() (ret ImagePlateStatus) {
+	ret = ImagePlateStatusUNKNOWN
+	if r.isSolved { ret=ImagePlateStatusSOLVED } else if r.isProcessed { ret=ImagePlateStatusFAILED } else if r.isInProcess { ret=ImagePlateStatusRUNNING }
+	return
+}
 
 // transform remove extension from a fully qualified file: "/a/b/file.ext" -> "/a/b/file"
 func fileBase(filePath string) string {
