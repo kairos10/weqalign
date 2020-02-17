@@ -29,7 +29,7 @@ func GetHttpPlateSolver() func(http.ResponseWriter, *http.Request) {
 	plateSolver := am.GetPlateSolver()
 	return func(w http.ResponseWriter, r *http.Request) {
 		imgId := r.FormValue("imgid")
-		imgRes, ok := mapIdResource[imgId]
+		imgRes, ok := resources.getResource(imgId)
 		if !ok {
 			http.Error(w, "not found", http.StatusNotFound)
 			return
@@ -50,7 +50,7 @@ func GetHttpPlateSolver() func(http.ResponseWriter, *http.Request) {
 			_ = plateSolver(&plate)
 			stat := plate.GetStatus()
 			if stat == am.ImagePlateStatusSOLVED || stat == am.ImagePlateStatusFAILED {
-				ss := solverStatus{FileId: imgId, SolverStatus: string(stat)}
+				ss := solverStatus{FileId: imgId, SolverStatus: stat.String()}
 				imgRes.solverResponse = &ss
 				if stat == am.ImagePlateStatusSOLVED {
 					am.PlateGetWcsInfo(&plate)

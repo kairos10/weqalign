@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"time"
+	"sync"
 )
 
 const (
@@ -24,26 +25,45 @@ type imgResource struct {
 	path           string
 	solverResponse interface{}
 }
-
-var (
+type imageResources struct {
+	sync.RWMutex
 	mapIdResource map[string]*imgResource
-)
-
-func init() {
-	mapIdResource = make(map[string]*imgResource)
+	crtId uint
 }
+func (ir *imageResources) getResource(key string) (*imgResource, bool) {
+	ir.RLock()
+	r, ok := ir.mapIdResource[key]
+	ir.RUnlock()
+	return r, ok
+}
+func (ir *imageResources) addResource(filePath string) (key string) {
+	ir.Lock()
+	if ir.mapIdResource == nil {
+		ir.mapIdResource = make(map[string]*imgResource)
+	}
+
+	ir.crtId++
+	key = fmt.Sprintf("%d", ir.crtId)
+	r := imgResource{imgId: key, path: filePath}
+	ir.mapIdResource[key] = &r
+	ir.Unlock()
+	return
+}
+var resources imageResources
 
 func main() {
 	//////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////
 	// test1
 	go func() {
-		mapIdResource["1"] = &imgResource{imgId: "1", path: "api/am/testres/img1.jpg"}
+		<-time.After(time.Second)
+		_ = resources.addResource("api/am/testres/img1.jpg")
+		_ = resources.addResource("api/am/testres/img2.jpg")
 		buf := make([]byte, 100)
-		for i := 0; i < 3; i++ {
-			<-time.After(time.Second)
+		for i := 0; i < 4; i++ {
 			fmt.Println("req", i)
-			res, _ := http.Get("http://localhost:8080/SolveField?imgid=1")
+			k := fmt.Sprintf("%d", 1 + i%2)
+			res, _ := http.Get("http://localhost:8080/SolveField?imgid=" + k)
 			res.Body.Read(buf)
 			fmt.Println(string(buf))
 		}
