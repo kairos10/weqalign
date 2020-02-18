@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"time"
-	"sync"
 )
 
 const (
@@ -20,37 +19,6 @@ var cmdParams struct {
 	imgFolder string
 }
 
-type imgResource struct {
-	imgId          string
-	path           string
-	solverResponse interface{}
-}
-type imageResources struct {
-	sync.RWMutex
-	mapIdResource map[string]*imgResource
-	crtId uint
-}
-func (ir *imageResources) getResource(key string) (*imgResource, bool) {
-	ir.RLock()
-	r, ok := ir.mapIdResource[key]
-	ir.RUnlock()
-	return r, ok
-}
-func (ir *imageResources) addResource(filePath string) (key string) {
-	ir.Lock()
-	if ir.mapIdResource == nil {
-		ir.mapIdResource = make(map[string]*imgResource)
-	}
-
-	ir.crtId++
-	key = fmt.Sprintf("%d", ir.crtId)
-	r := imgResource{imgId: key, path: filePath}
-	ir.mapIdResource[key] = &r
-	ir.Unlock()
-	return
-}
-var resources imageResources
-
 func main() {
 	//////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////
@@ -62,7 +30,7 @@ func main() {
 		buf := make([]byte, 100)
 		for i := 0; i < 4; i++ {
 			fmt.Println("req", i)
-			k := fmt.Sprintf("%d", 1 + i%2)
+			k := fmt.Sprintf("%d", 1+i%2)
 			res, _ := http.Get("http://localhost:8080/SolveField?imgid=" + k)
 			res.Body.Read(buf)
 			fmt.Println(string(buf))

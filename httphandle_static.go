@@ -4,6 +4,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/base64"
 	"fmt"
 	"net/http"
 	"time"
@@ -24,14 +25,25 @@ func GetSessionId(w http.ResponseWriter, r *http.Request) (sessId string) {
 
 func HttpFileHandler(fName string) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		_ = GetSessionId(w, r)
+		switch {
+		case true:
+			_ = GetSessionId(w, r)
 
-		fContent, ok := _genFiles[fName]
-		if ok {
-			http.ServeContent(w, r, fName, time.Time{}, bytes.NewReader([]byte(fContent)))
-		} else {
+			fContentStr, ok := _genFiles[fName]
+			if ok {
+				fContent, err := base64.StdEncoding.DecodeString(fContentStr)
+				if err == nil {
+					http.ServeContent(w, r, fName, time.Time{}, bytes.NewReader(fContent))
+					break
+				}
+				fmt.Println("BASE64 ERR: ", err)
+			}
+
+			fallthrough
+		default:
 			fmt.Println("NOT found: ", fName)
 			http.Error(w, "not found", http.StatusNotFound)
 		}
+
 	}
 }
