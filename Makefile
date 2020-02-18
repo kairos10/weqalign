@@ -15,7 +15,10 @@ temp_web.go: genResources.sh web/index.html web/main.js
 	go generate
 
 clean:
-	rm -f temp_web.go
+	rm -f temp_web.go weqalign
+
+distclean: clean
+	rm -rf --one-file-system builder/BUILD/
 
 weqalign: $(GOSOURCES)
 	go build

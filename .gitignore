@@ -9,3 +9,5 @@ go.sum
 temp_web.go
 weqalign
 testimg.*/
+
+builder/BUILD/
