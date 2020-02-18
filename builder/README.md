@@ -1,5 +1,5 @@
 # build_rpi_image.sh
-This script creates a new Raspbian image, on a secondary SDCARD/USB drive, with everithing that is needed to run *weqalign*.
+This script creates a new Raspbian image, on a secondary SDCARD/USB drive, with everything that is needed to run *weqalign*.
 The script needs to be started from a working Raspbian installation.
 
 * identify the secondary drive
