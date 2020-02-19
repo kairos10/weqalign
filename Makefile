@@ -7,7 +7,9 @@ GOSOURCES = \
 	httphandle_static.go \
 	main.go \
 	temp_web.go \
-	resources.go
+	resources.go \
+	resgenerator_folder.go \
+
 
 all: weqalign
 

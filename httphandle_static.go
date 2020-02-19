@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+	"strings"
 )
 
 func GetSessionId(w http.ResponseWriter, r *http.Request) (sessId string) {
@@ -23,8 +24,13 @@ func GetSessionId(w http.ResponseWriter, r *http.Request) (sessId string) {
 	return
 }
 
-func HttpFileHandler(fName string) func(http.ResponseWriter, *http.Request) {
+func HttpStaticFilesHandler() func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		fName := r.URL.Path
+		prefix := "/"
+		if strings.HasPrefix(fName, prefix) {
+			fName = fName[len(prefix):]
+		}
 		switch {
 		case true:
 			_ = GetSessionId(w, r)
