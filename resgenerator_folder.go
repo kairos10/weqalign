@@ -18,7 +18,7 @@ func isImageFile(fileName string) bool {
 const writeTIMEOUT = 100 * time.Millisecond
 
 // monitor the given folder for new files and add those files as resources (resources.addResource(...))
-func StartResGeneratorFromFolder(dir string) (err0 error) {
+func StartResGeneratorFromFolder(dir string, webDir string) (err0 error) {
 	watcher, err := fsnotify.NewWatcher()
 	if err0 = err; err0 != nil {
 		return
@@ -61,7 +61,7 @@ func StartResGeneratorFromFolder(dir string) (err0 error) {
 				for fileName, lastWriteTime := range files {
 					if now.Sub(lastWriteTime) >= writeTIMEOUT {
 						delete(files, fileName)
-						resources.addResource(fileName)
+						resources.addResource(fileName, webDir + "/" + filepath.Base(fileName))
 					}
 				}
 			}

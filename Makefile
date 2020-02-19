@@ -5,6 +5,7 @@
 GOSOURCES = \
 	httphandle_solve.go \
 	httphandle_static.go \
+	httphandle_publish_resources.go \
 	main.go \
 	temp_web.go \
 	resources.go \

@@ -6,13 +6,14 @@ import (
 	"github.com/kairos10/weqalign/api/am"
 	"math"
 	"net/http"
+	"strconv"
 )
 
 const alignPointsDistance = 2 // distance in degrees for the DEC displacement
 
 func GetHttpPlateSolver() func(http.ResponseWriter, *http.Request) {
 	type solverStatus struct {
-		FileId       string
+		FileId       uint64
 		SolverStatus string
 		//NCP, ...
 		RA0DEC90_X         float64
@@ -28,7 +29,10 @@ func GetHttpPlateSolver() func(http.ResponseWriter, *http.Request) {
 	}
 	plateSolver := am.GetPlateSolver()
 	return func(w http.ResponseWriter, r *http.Request) {
-		imgId := r.FormValue("imgid")
+		sImgId := r.FormValue("imgid")
+		imgId, err := strconv.ParseUint(sImgId, 10, 64)
+		if err != nil { imgId = 0 }
+		
 		imgRes, ok := resources.getResource(imgId)
 		if !ok {
 			http.Error(w, "not found", http.StatusNotFound)
@@ -42,7 +46,7 @@ func GetHttpPlateSolver() func(http.ResponseWriter, *http.Request) {
 		} else {
 			w.Header().Set("Retry-After", "10")
 			http.Error(w, "", http.StatusServiceUnavailable)
-			fmt.Println("not ready: " + imgId)
+			fmt.Printf("not ready: %d\n", imgId)
 		}
 
 		if imgRes.solverResponse == nil {

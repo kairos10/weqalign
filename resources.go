@@ -8,31 +8,37 @@ import (
 
 type imgResource struct {
 	imgId             string
-	path              string
+	path              string // path on the server
+	webPath           string // path on the web server
 	resourceTimestamp time.Time
 	solverResponse    interface{}
 }
 type imageResources struct {
 	sync.RWMutex
-	mapIdResource map[string]*imgResource
-	crtId         uint
+	mapIdResource map[uint64]*imgResource
+	crtId         uint64
 }
 
-func (ir *imageResources) getResource(key string) (*imgResource, bool) {
+func (ir *imageResources) getResource(key uint64) (*imgResource, bool) {
 	ir.RLock()
 	r, ok := ir.mapIdResource[key]
 	ir.RUnlock()
 	return r, ok
 }
-func (ir *imageResources) getLastResource() (*imgResource, bool) {
+func (ir *imageResources) getLastResourceId() uint64 {
 	ir.RLock()
 	crtId := ir.crtId
 	ir.RUnlock()
-	key := fmt.Sprintf("%d", crtId)
+	return crtId
+}
+func (ir *imageResources) getLastResource() (*imgResource, bool) {
+	ir.RLock()
+	key := ir.crtId
+	ir.RUnlock()
 	return ir.getResource(key)
 }
-func (ir *imageResources) getResourcesSince(pastDuration time.Duration) map[string]*imgResource {
-	ret := make(map[string]*imgResource)
+func (ir *imageResources) getResourcesSince(pastDuration time.Duration) map[uint64]*imgResource {
+	ret := make(map[uint64]*imgResource)
 	now := time.Now()
 
 	ir.RLock()
@@ -47,15 +53,16 @@ func (ir *imageResources) getResourcesSince(pastDuration time.Duration) map[stri
 	}
 	return ret
 }
-func (ir *imageResources) addResource(filePath string) (key string) {
+func (ir *imageResources) addResource(filePath string, webPath string) (key uint64) {
 	ir.Lock()
 	if ir.mapIdResource == nil {
-		ir.mapIdResource = make(map[string]*imgResource)
+		ir.mapIdResource = make(map[uint64]*imgResource)
 	}
 
 	ir.crtId++
-	key = fmt.Sprintf("%d", ir.crtId)
-	r := imgResource{imgId: key, path: filePath, resourceTimestamp: time.Now()}
+	key = ir.crtId
+	sKey := fmt.Sprintf("%d", ir.crtId)
+	r := imgResource{imgId: sKey, path: filePath, webPath: webPath, resourceTimestamp: time.Now()}
 	ir.mapIdResource[key] = &r
 	ir.Unlock()
 	return

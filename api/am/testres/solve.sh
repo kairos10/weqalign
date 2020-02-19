@@ -1,6 +1,6 @@
 #!/bin/bash
 
-keepSolvedDir=~/_solved
+#keepSolvedDir=~/_solved
 
 if [ $# -lt 1 ]; then
 	echo Use $0 FILE.JPG [other solve-field parameters]
